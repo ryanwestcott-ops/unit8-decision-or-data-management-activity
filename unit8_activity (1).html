@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Management — The Decision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg-2: #0f1424;
+  --surface: #151a2e;
+  --surface-2: #1d2440;
+  --border: #2a3252;
+  --border-2: #3a4470;
+  --text: #f0f4f8;
+  --text-dim: #9aa3bd;
+  --text-faint: #6b738e;
+  --accent: #facc15;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --info: #38bdf8;
+
+  --c-nhl: #ef4444;
+  --c-stream: #c084fc;
+  --c-cars: #fb923c;
+  --c-jobs: #34d399;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+button { color: inherit; font-family: inherit; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(250, 204, 21, 0.06), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(56, 189, 248, 0.05), transparent 60%),
+    var(--bg);
+}
+
+.app { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* ============ TOP NAV ============ */
+.top-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 12px;
+}
+.brand-dot {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+.brand-sub {
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.nav-actions { display: flex; gap: 12px; align-items: center; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-ghost:hover { border-color: var(--border-2); color: var(--text); }
+
+/* ============ LANDING ============ */
+.hero {
+  padding: 48px 0 40px;
+  text-align: center;
+}
+.hero-tag {
+  display: inline-block;
+  background: rgba(250, 204, 21, 0.1);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 9vw, 96px);
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+  margin-bottom: 18px;
+}
+.hero h1 .yellow { color: var(--accent); }
+.hero p.lead {
+  font-size: 18px;
+  color: var(--text-dim);
+  max-width: 640px;
+  margin: 0 auto 8px;
+}
+
+.info-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 40px 0;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.info-stat .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 4px;
+}
+.info-stat .value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  line-height: 1;
+}
+.info-stat .value-sub {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::before {
+  content: '';
+  width: 24px; height: 1px;
+  background: var(--text-faint);
+}
+.section-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border);
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.scenario-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex; flex-direction: column;
+  color: var(--text);
+  font-family: inherit;
+}
+.scenario-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-accent);
+}
+.scenario-card:hover {
+  border-color: var(--card-accent);
+  transform: translateY(-2px);
+}
+.scenario-icon {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  line-height: 1;
+  color: var(--card-accent);
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+.scenario-card h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+.scenario-card .tagline {
+  color: var(--text-dim);
+  font-size: 14px;
+  flex: 1;
+}
+.scenario-progress {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.scenario-progress .progress-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.scenario-progress .progress-row .pct {
+  color: var(--card-accent);
+  font-weight: 700;
+}
+.progress-bar {
+  height: 4px;
+  background: var(--bg-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: var(--card-accent);
+  transition: width 0.3s;
+}
+
+.how-it-works {
+  margin: 48px 0;
+}
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.how-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.how-card .step {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.how-card h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+.how-card p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ============ SCENARIO VIEW ============ */
+.scenario-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--scenario-color);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 32px;
+  position: relative;
+}
+.scenario-header .kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--scenario-color);
+  margin-bottom: 12px;
+}
+.scenario-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+}
+.scenario-header .intro {
+  font-size: 16px;
+  color: var(--text-dim);
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.stakeholders {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+}
+@media (max-width: 600px) { .stakeholders { grid-template-columns: 1fr; } }
+
+.competitor-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  border-left: 3px solid var(--card-accent);
+}
+.competitor-card .role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.competitor-card .name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+.competitor-card .detail {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.competitor-card .ask {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--card-accent);
+}
+
+.budget-pill {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(250, 204, 21, 0.12);
+  color: var(--accent);
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  margin-top: 20px;
+}
+
+/* ============ PART SECTIONS ============ */
+.part {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+.part-header {
+  display: flex; align-items: baseline; gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.part-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  color: var(--scenario-color);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.part-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.part-intro {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+/* Data tables */
+.data-block { margin: 16px 0 24px; }
+.data-block h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+table.data th, table.data td {
+  border: 1px solid var(--border);
+  padding: 8px 6px;
+  text-align: center;
+}
+table.data th {
+  background: var(--bg-2);
+  color: var(--text-dim);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+table.data td.value {
+  color: var(--text);
+  font-weight: 500;
+}
+
+table.market {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+table.market th, table.market td {
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  text-align: center;
+}
+table.market th {
+  background: var(--bg-2);
+  color: var(--text-dim);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* Question block */
+.question {
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--bg-2);
+  border-radius: 8px;
+  border-left: 3px solid var(--scenario-color);
+}
+.question .q-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--scenario-color);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.question .q-text {
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.question .q-text b { color: var(--text); font-weight: 700; }
+
+/* Answer panels split */
+.split-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 700px) { .split-2 { grid-template-columns: 1fr; } }
+
+.answer-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  border-top: 2px solid var(--card-accent);
+}
+.answer-panel h5 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  color: var(--card-accent);
+}
+
+.input-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.input-row label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  min-width: 80px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.input-row input[type="text"], .input-row input[type="number"] {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  border-radius: 4px;
+  min-width: 0;
+}
+.input-row input:focus {
+  outline: none;
+  border-color: var(--card-accent);
+}
+.input-row .verdict {
+  width: 24px; text-align: center;
+  font-size: 16px;
+}
+.verdict.ok { color: var(--good); }
+.verdict.no { color: var(--bad); }
+
+.btn-row {
+  display: flex; gap: 8px; margin-top: 14px;
+}
+.btn-check, .btn-reveal {
+  flex: 1;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.btn-check {
+  background: var(--card-accent);
+  color: var(--bg);
+  border-color: var(--card-accent);
+}
+.btn-check:hover { filter: brightness(1.1); }
+.btn-reveal {
+  background: transparent;
+  color: var(--text-dim);
+}
+.btn-reveal:hover { color: var(--text); border-color: var(--border-2); }
+
+textarea.long {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: 6px;
+  resize: vertical;
+  min-height: 80px;
+}
+textarea.long:focus {
+  outline: none; border-color: var(--card-accent);
+}
+
+/* Visualizations */
+.viz-container {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+.viz-container svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Equation box */
+.eqn {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.08), rgba(250, 204, 21, 0.02));
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin: 16px 0;
+}
+.eqn .formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.eqn .vars {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* Pitch */
+.pitch-box {
+  background: var(--bg-2);
+  border: 2px solid var(--scenario-color);
+  border-radius: 10px;
+  padding: 24px;
+}
+.choose-row {
+  display: flex; gap: 12px; margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.choose-btn {
+  flex: 1;
+  min-width: 160px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.03em;
+  transition: all 0.15s;
+}
+.choose-btn:hover { border-color: var(--border-2); color: var(--text); }
+.choose-btn.selected {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: var(--good);
+  color: var(--text);
+}
+.choose-btn.selected::after {
+  content: ' ✓';
+  color: var(--good);
+}
+
+.checklist {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.checklist .check-item {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.checklist input[type="checkbox"] {
+  width: 18px; height: 18px;
+  accent-color: var(--good);
+  cursor: pointer;
+}
+
+.action-row {
+  display: flex; gap: 12px; margin-top: 28px;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 14px 24px;
+  border-radius: 6px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+.sticky-progress {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 50;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.sticky-progress .back-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.sticky-progress .back-btn:hover { color: var(--text); }
+.sticky-progress .progress-info {
+  flex: 1;
+  display: flex; align-items: center; gap: 12px;
+}
+.sticky-progress .progress-bar {
+  flex: 1;
+  max-width: 400px;
+  height: 6px;
+}
+.sticky-progress .progress-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--scenario-color);
+}
+
+/* Footer */
+.app-footer {
+  margin-top: 64px;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+/* Gut-check (pre-calc decision) */
+.gut-check {
+  background: var(--surface);
+  border: 1px dashed var(--border-2);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.gut-check .gc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.gut-check h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+}
+.gut-check p.gc-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+.gut-check .gc-buttons {
+  display: flex; gap: 10px; margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.gut-check .gc-btn {
+  flex: 1; min-width: 140px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 12px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+}
+.gut-check .gc-btn:hover { border-color: var(--border-2); color: var(--text); }
+.gut-check .gc-btn.selected {
+  background: rgba(250, 204, 21, 0.08);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.gut-check textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  border-radius: 5px;
+  resize: vertical;
+  min-height: 48px;
+}
+.gut-check textarea:focus { outline: none; border-color: var(--accent); }
+
+/* Gut-recall callout (shown in pitch) */
+.gut-recall {
+  background: rgba(250, 204, 21, 0.08);
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.gut-recall .gr-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+.gut-recall .gr-quote {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* Mini-example details/summary */
+details.mini-example {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+details.mini-example summary {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  list-style: none;
+  position: relative;
+}
+details.mini-example summary::before {
+  content: '+ ';
+  font-weight: 700;
+}
+details.mini-example[open] summary::before { content: '\2212 '; }
+details.mini-example summary::-webkit-details-marker { display: none; }
+details.mini-example .me-body {
+  padding: 6px 16px 16px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+details.mini-example .me-body .step {
+  color: var(--text);
+}
+
+/* Print */
+@media print {
+  body { background: white; color: black; }
+  .top-nav, .sticky-progress, .btn-row, .action-row, .nav-actions, .btn-check, .btn-reveal { display: none !important; }
+  .app { max-width: 100%; padding: 0; }
+  .part, .scenario-header, .part-intro, .competitor-card, .answer-panel, .pitch-box, .question, .eqn, .viz-container {
+    background: white !important;
+    color: black !important;
+    border-color: #999 !important;
+    page-break-inside: avoid;
+  }
+  .answer-panel h5, .part-title, .scenario-header h1, .competitor-card .name, .competitor-card .ask {
+    color: black !important;
+  }
+  .question .q-label, .scenario-header .kicker, .part-number {
+    color: #555 !important;
+  }
+  table.data th, table.market th { background: #eee !important; color: black !important; }
+  table.data td, table.market td { color: black !important; }
+  .viz-container svg { background: white !important; }
+  input, textarea {
+    background: white !important;
+    color: black !important;
+    border-color: #999 !important;
+  }
+  .eqn { background: #fef9c3 !important; border-color: #ca8a04 !important; }
+  .eqn .formula { color: #713f12 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- Rendered by JS -->
+</div>
+
+<script>
+// ============================================================
+// SCENARIO DATA
+// ============================================================
+const SCENARIOS = {
+  nhl: {
+    id: 'nhl',
+    color: '#ef4444',
+    icon: 'NHL',
+    title: 'GM for a Day',
+    subtitle: 'NHL Edition',
+    cardTagline: 'Two free agents, one roster spot, $7.0M cap. Who do you sign?',
+    intro: "You are the new General Manager of an NHL team. You have ONE roster spot open and $7.0 million in cap space to fill it. Two centres are available — choose wisely.",
+    budget: { value: 7.0, label: '$7.0M cap', short: '$7.0M' },
+    metricLabel: 'Points per Season',
+    metricShort: 'Points',
+    contractUnit: 'M',
+    predictedFieldLabel: 'Predicted ($M)',
+    contractLabel: 'Contract Value (millions $)',
+    seasonLabel: 'S',
+    competitor1: {
+      name: 'Tyler Brennan', role: 'Centre, 28 years old', asking: 8.0, askingLabel: '$8.0M / year',
+      data: [45, 52, 38, 55, 68, 72, 78, 85, 91, 68], color: '#c084fc'
+    },
+    competitor2: {
+      name: 'Marcus Chen', role: 'Centre, 28 years old', asking: 5.0, askingLabel: '$5.0M / year',
+      data: [55, 62, 58, 65, 60, 63, 57, 64, 60, 61], color: '#38bdf8'
+    },
+    market: {
+      xLabel: 'Last Season Points',
+      yLabel: 'Contract Value (millions $)',
+      data: [[30,2.5],[35,3.0],[40,3.8],[45,4.2],[50,4.5],[55,5.0],[60,5.5],[65,6.2],[70,7.0],[75,7.5],[80,7.8],[85,8.5],[90,9.0],[95,9.5]],
+      regression: { slope: 0.108, intercept: -0.76, r: 0.998 },
+      formula: 'y = 0.108x − 0.76',
+      r: 0.998,
+      predictorLabel: 'last season points'
+    },
+    predictorValue1: 68,
+    predictorValue2: 61,
+    pitchPrompt: "Time to make the call. Sign ONE player, staying within your $7.0 million cap.",
+    signed1Label: 'Sign Brennan',
+    signed2Label: 'Sign Chen'
+  },
+
+  stream: {
+    id: 'stream',
+    color: '#c084fc',
+    icon: 'LIVE',
+    title: 'Sponsorship Pick',
+    subtitle: 'Streaming Edition',
+    cardTagline: 'PixelGear Energy needs ONE streamer at $4K/month. Two are pitching.',
+    intro: "You\u2019re the marketing director for PixelGear Energy Drinks. You have ONE monthly sponsorship slot at $4,000/month. Two streamers are pitching for it.",
+    budget: { value: 4000, label: '$4,000 / month', short: '$4K/mo' },
+    metricLabel: 'Avg Viewers per Stream',
+    metricShort: 'Viewers',
+    contractUnit: '/mo',
+    predictedFieldLabel: 'Predicted ($/mo)',
+    contractLabel: 'Sponsorship Value ($/month)',
+    seasonLabel: '#',
+    competitor1: {
+      name: 'Zoe "PixelPanda" Martinez', role: 'Variety streamer, 21', asking: 4500, askingLabel: '$4,500 / month',
+      data: [220, 280, 580, 320, 260, 510, 380, 410, 320, 450], color: '#c084fc'
+    },
+    competitor2: {
+      name: 'Riley "RetroRiley" Park', role: 'Retro game streamer, 23', asking: 3000, askingLabel: '$3,000 / month',
+      data: [330, 350, 320, 360, 340, 350, 360, 340, 350, 350], color: '#38bdf8'
+    },
+    market: {
+      xLabel: 'Avg Viewers per Stream',
+      yLabel: 'Sponsorship Value ($/month)',
+      data: [[50,400],[80,650],[120,1000],[150,1250],[200,1700],[250,2050],[300,2450],[350,2900],[400,3300],[450,3700],[500,4100],[550,4550],[600,4950],[700,5800]],
+      regression: { slope: 8.26, intercept: 0, r: 0.9999 },
+      formula: 'y = 8.26x',
+      r: 0.9999,
+      predictorLabel: "last stream\u2019s avg viewers"
+    },
+    predictorValue1: 450,
+    predictorValue2: 350,
+    pitchPrompt: "Time to award the sponsorship. Pick ONE streamer, staying within your $4,000/month budget.",
+    signed1Label: 'Sign Zoe',
+    signed2Label: 'Sign Riley'
+  },
+
+  cars: {
+    id: 'cars',
+    color: '#fb923c',
+    icon: 'AUTO',
+    title: 'First Car Hunt',
+    subtitle: 'Marketplace Edition',
+    cardTagline: 'You saved $6,000 for your first car. Two listings, one decision.',
+    intro: "You finally saved up $6,000 for your first car. You found two listings on Marketplace. The previous owners shared their weekly fuel cost records.",
+    budget: { value: 6000, label: '$6,000 max', short: '$6,000' },
+    metricLabel: 'Weekly Fuel Cost ($)',
+    metricShort: 'Fuel $/wk',
+    contractUnit: '',
+    predictedFieldLabel: 'Predicted ($1,000s)',
+    contractLabel: 'Asking Price ($1,000s)',
+    seasonLabel: 'Wk',
+    competitor1: {
+      name: '2008 Honda Civic', role: '245,000 km \u00b7 manual', asking: 5800, askingLabel: '$5,800',
+      data: [65, 45, 90, 50, 75, 55, 85, 60, 70, 55], color: '#fb923c'
+    },
+    competitor2: {
+      name: '2015 Toyota Corolla', role: '165,000 km \u00b7 automatic', asking: 5500, askingLabel: '$5,500',
+      data: [75, 70, 80, 75, 72, 78, 75, 73, 77, 75], color: '#38bdf8'
+    },
+    market: {
+      xLabel: 'Odometer (thousand km)',
+      yLabel: 'Asking Price ($1,000s)',
+      data: [[20,18],[40,16],[60,14],[80,12],[100,10.5],[120,9],[140,8],[160,7],[180,6],[200,5.5],[220,5],[240,4.5],[260,4],[280,3.5]],
+      regression: { slope: -0.054, intercept: 16.86, r: -0.965 },
+      formula: 'y = \u20130.054x + 16.86',
+      r: -0.965,
+      predictorLabel: 'odometer (thousand km)'
+    },
+    predictorValue1: 245,
+    predictorValue2: 165,
+    pitchPrompt: "Time to buy. Pick ONE car, staying within your $6,000 budget.",
+    signed1Label: 'Buy the Civic',
+    signed2Label: 'Buy the Corolla',
+    inverseDataInterp: true
+  },
+
+  jobs: {
+    id: 'jobs',
+    color: '#34d399',
+    icon: 'JOB',
+    title: 'First Paycheque',
+    subtitle: 'Hiring Decision',
+    cardTagline: 'Two part-time offers. You can only take ONE. Which pays off?',
+    intro: "Two part-time job offers came in. You can only accept ONE (school + sports won\u2019t let you do both). The hiring managers shared weekly earnings data from current employees in the same roles.",
+    budget: { value: null, label: 'No budget cap', short: 'No cap' },
+    metricLabel: 'Weekly Earnings ($)',
+    metricShort: 'Earnings $/wk',
+    contractUnit: '',
+    predictedFieldLabel: 'Predicted ($/wk)',
+    contractLabel: 'Avg Weekly Earnings ($)',
+    seasonLabel: 'Wk',
+    competitor1: {
+      name: "Server at Mike\u2019s Diner", role: '4 nights/week \u00b7 ~22 hrs \u00b7 tips', asking: 22, askingLabel: '~22 hrs / week',
+      data: [320, 580, 290, 650, 410, 360, 590, 470, 510, 360], color: '#34d399'
+    },
+    competitor2: {
+      name: 'Stocker at MegaMart', role: '5 shifts/week \u00b7 ~20 hrs \u00b7 no tips', asking: 20, askingLabel: '~20 hrs / week',
+      data: [380, 400, 380, 420, 400, 380, 400, 380, 400, 380], color: '#38bdf8'
+    },
+    market: {
+      xLabel: 'Avg Hours per Week',
+      yLabel: 'Avg Weekly Earnings ($)',
+      data: [[5,105],[8,170],[10,195],[12,240],[15,290],[18,345],[20,380],[22,410],[25,475],[28,530],[30,560],[32,605],[35,660],[40,745]],
+      regression: { slope: 18.26, intercept: 16.48, r: 0.9998 },
+      formula: 'y = 18.26x + 16.48',
+      r: 0.9998,
+      predictorLabel: 'hours per week'
+    },
+    predictorValue1: 22,
+    predictorValue2: 20,
+    pitchPrompt: "Time to accept ONE job. You can\u2019t do both \u2014 which one?",
+    signed1Label: 'Take the Server Job',
+    signed2Label: 'Take the Stocker Job',
+    noBudget: true
+  }
+};
+
+// ============================================================
+// STATS HELPERS
+// ============================================================
+function computeStats(data) {
+  const sorted = [...data].sort((a, b) => a - b);
+  const n = sorted.length;
+  const mean = data.reduce((a, b) => a + b, 0) / n;
+  const median = n % 2 === 0
+    ? (sorted[n/2 - 1] + sorted[n/2]) / 2
+    : sorted[Math.floor(n/2)];
+
+  const counts = {};
+  data.forEach(x => counts[x] = (counts[x] || 0) + 1);
+  const maxCount = Math.max(...Object.values(counts));
+  let mode;
+  if (maxCount === 1) {
+    mode = 'none';
+  } else {
+    const modes = Object.entries(counts).filter(([k, v]) => v === maxCount).map(([k]) => +k);
+    mode = modes.length === 1 ? String(modes[0]) : modes.join(', ');
+  }
+
+  // Q1/Q3 using "halves" method (matches the textbook examples)
+  const lower = n % 2 === 0 ? sorted.slice(0, n/2) : sorted.slice(0, Math.floor(n/2));
+  const upper = n % 2 === 0 ? sorted.slice(n/2) : sorted.slice(Math.ceil(n/2));
+  function medOf(arr) {
+    const m = arr.length;
+    return m % 2 === 0 ? (arr[m/2-1] + arr[m/2]) / 2 : arr[Math.floor(m/2)];
+  }
+  const q1 = medOf(lower);
+  const q3 = medOf(upper);
+  const min = sorted[0];
+  const max = sorted[n-1];
+
+  return {
+    mean: round(mean, 2),
+    median: round(median, 2),
+    mode: mode,
+    q1: round(q1, 2),
+    q3: round(q3, 2),
+    iqr: round(q3 - q1, 2),
+    range: round(max - min, 2),
+    min, max,
+    sorted
+  };
+}
+
+function round(n, digits) {
+  const f = Math.pow(10, digits);
+  return Math.round(n * f) / f;
+}
+
+function formatNum(n, digits = 2) {
+  if (typeof n !== 'number') return n;
+  if (Number.isInteger(n) && digits === 2) return n.toString();
+  return n.toFixed(digits).replace(/\.?0+$/, '');
+}
+
+// Check answer with tolerance
+function check(input, expected, tolerance = 0.05) {
+  const raw = String(input).trim();
+  if (raw === '') return null;
+  // Allow comma list for modes
+  if (typeof expected === 'string') {
+    return raw.replace(/\s/g, '').toLowerCase() === expected.replace(/\s/g, '').toLowerCase();
+  }
+  const num = parseFloat(raw);
+  if (isNaN(num)) return false;
+  const diff = Math.abs(num - expected);
+  const tol = Math.max(tolerance, Math.abs(expected) * 0.02);
+  return diff <= tol;
+}
+
+// ============================================================
+// STATE / LOCALSTORAGE
+// ============================================================
+const STORAGE_KEY = 'unit8-activity-v1';
+let STATE = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return {};
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch (e) {}
+}
+function getScenarioState(id) {
+  if (!STATE[id]) STATE[id] = { inputs: {}, choice: null, pitch: '', checks: {} };
+  return STATE[id];
+}
+function setInput(scenarioId, key, value) {
+  getScenarioState(scenarioId).inputs[key] = value;
+  saveState();
+}
+
+// Progress: count of filled inputs / total expected inputs
+function scenarioProgress(id) {
+  const expected = expectedFields();
+  const s = getScenarioState(id);
+  let filled = 0;
+  expected.forEach(k => {
+    const v = s.inputs[k];
+    if (v !== undefined && v !== null && String(v).trim() !== '') filled++;
+  });
+  if (s.choice) filled += 1;
+  if (s.pitch && s.pitch.trim().length >= 50) filled += 1;
+  return Math.min(1, filled / (expected.length + 2));
+}
+
+function expectedFields() {
+  return [
+    'mean1', 'median1', 'mode1',
+    'mean2', 'median2', 'mode2',
+    'compare',
+    'min_1', 'q1_1', 'q3_1', 'max_1', 'iqr_1', 'range_1',
+    'min_2', 'q1_2', 'q3_2', 'max_2', 'iqr_2', 'range_2',
+    'consistency',
+    'correlation',
+    'pred1', 'pred2',
+    'interp',
+    'value_analysis'
+  ];
+}
+
+// ============================================================
+// ROUTING
+// ============================================================
+function getRoute() {
+  const hash = window.location.hash.slice(1);
+  if (hash.startsWith('scenario/')) return { view: 'scenario', id: hash.slice('scenario/'.length) };
+  if (hash === 'about') return { view: 'about' };
+  return { view: 'home' };
+}
+function goTo(route) {
+  window.location.hash = route;
+}
+window.addEventListener('hashchange', render);
+
+// ============================================================
+// SVG VIZ
+// ============================================================
+function renderBoxplotSVG(stats1, stats2, c1Name, c2Name, color1, color2, dataMin, dataMax) {
+  // Use computed sensible range
+  const allData = [];
+  [stats1, stats2].forEach(s => { if (s) { allData.push(s.min, s.max); } });
+  let xMin = Math.min(...allData);
+  let xMax = Math.max(...allData);
+  if (!isFinite(xMin)) xMin = dataMin || 0;
+  if (!isFinite(xMax)) xMax = dataMax || 100;
+  const pad = (xMax - xMin) * 0.1 || 1;
+  xMin = Math.floor((xMin - pad) / 10) * 10;
+  xMax = Math.ceil((xMax + pad) / 10) * 10;
+
+  const w = 720, h = 240, marginL = 90, marginR = 40, marginT = 30, marginB = 50;
+  const plotW = w - marginL - marginR, plotH = h - marginT - marginB;
+  const xScale = v => marginL + ((v - xMin) / (xMax - xMin)) * plotW;
+
+  function drawBox(stats, y, color, label) {
+    if (!stats) return `<text x="${marginL - 12}" y="${y+5}" fill="#6b738e" font-family="JetBrains Mono" font-size="12" text-anchor="end">${label}</text>`;
+    const x1 = xScale(stats.min), xq1 = xScale(stats.q1), xm = xScale(stats.median),
+          xq3 = xScale(stats.q3), x2 = xScale(stats.max);
+    const boxH = 40;
+    return `
+      <text x="${marginL - 12}" y="${y+5}" fill="${color}" font-family="Bebas Neue" font-size="16" text-anchor="end" letter-spacing="1">${label}</text>
+      <line x1="${x1}" y1="${y}" x2="${xq1}" y2="${y}" stroke="${color}" stroke-width="2"/>
+      <line x1="${xq3}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="2"/>
+      <line x1="${x1}" y1="${y-8}" x2="${x1}" y2="${y+8}" stroke="${color}" stroke-width="2"/>
+      <line x1="${x2}" y1="${y-8}" x2="${x2}" y2="${y+8}" stroke="${color}" stroke-width="2"/>
+      <rect x="${xq1}" y="${y - boxH/2}" width="${xq3-xq1}" height="${boxH}" fill="none" stroke="${color}" stroke-width="2"/>
+      <line x1="${xm}" y1="${y - boxH/2}" x2="${xm}" y2="${y + boxH/2}" stroke="${color}" stroke-width="2.5"/>
+    `;
+  }
+
+  // Axis
+  let ticks = '';
+  const tickInterval = (xMax - xMin) > 200 ? 50 : (xMax - xMin) > 50 ? 10 : 5;
+  for (let v = xMin; v <= xMax; v += tickInterval) {
+    const x = xScale(v);
+    ticks += `<line x1="${x}" y1="${h - marginB}" x2="${x}" y2="${h - marginB + 5}" stroke="#3a4470" stroke-width="1"/>
+              <text x="${x}" y="${h - marginB + 18}" fill="#9aa3bd" font-family="JetBrains Mono" font-size="11" text-anchor="middle">${v}</text>`;
+  }
+
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="background: transparent;">
+    <line x1="${marginL}" y1="${h - marginB}" x2="${w - marginR}" y2="${h - marginB}" stroke="#3a4470" stroke-width="1"/>
+    ${ticks}
+    ${drawBox(stats1, marginT + plotH * 0.30, color1, c1Name)}
+    ${drawBox(stats2, marginT + plotH * 0.75, color2, c2Name)}
+  </svg>`;
+}
+
+function renderScatterSVG(market, c1, c2, scenario) {
+  const allX = market.data.map(d => d[0]).concat([c1.predictor || -999, c2.predictor || -999].filter(v => v !== -999));
+  const allY = market.data.map(d => d[1]);
+  let xMin = Math.min(...allX), xMax = Math.max(...allX);
+  let yMin = Math.min(...allY), yMax = Math.max(...allY);
+  const padX = (xMax - xMin) * 0.08;
+  const padY = (yMax - yMin) * 0.08;
+  xMin = Math.floor((xMin - padX));
+  xMax = Math.ceil((xMax + padX));
+  yMin = Math.floor((yMin - padY));
+  if (yMin > 0) yMin = 0;
+  yMax = Math.ceil(yMax + padY);
+
+  const w = 720, h = 480, mL = 70, mR = 30, mT = 30, mB = 60;
+  const plotW = w - mL - mR, plotH = h - mT - mB;
+  const xs = v => mL + ((v - xMin) / (xMax - xMin)) * plotW;
+  const ys = v => mT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+  // Gridlines
+  const xTickCount = 10;
+  const yTickCount = 8;
+  let grid = '';
+  for (let i = 0; i <= xTickCount; i++) {
+    const x = mL + (i / xTickCount) * plotW;
+    grid += `<line x1="${x}" y1="${mT}" x2="${x}" y2="${mT + plotH}" stroke="#2a3252" stroke-width="0.5"/>`;
+  }
+  for (let i = 0; i <= yTickCount; i++) {
+    const y = mT + (i / yTickCount) * plotH;
+    grid += `<line x1="${mL}" y1="${y}" x2="${mL + plotW}" y2="${y}" stroke="#2a3252" stroke-width="0.5"/>`;
+  }
+
+  // Axis labels
+  let xLabels = '';
+  for (let i = 0; i <= xTickCount; i++) {
+    const v = xMin + ((xMax - xMin) * i / xTickCount);
+    const x = xs(v);
+    xLabels += `<text x="${x}" y="${mT + plotH + 18}" fill="#9aa3bd" font-family="JetBrains Mono" font-size="10" text-anchor="middle">${formatNum(v, 0)}</text>`;
+  }
+  let yLabels = '';
+  for (let i = 0; i <= yTickCount; i++) {
+    const v = yMin + ((yMax - yMin) * i / yTickCount);
+    const y = ys(v);
+    yLabels += `<text x="${mL - 8}" y="${y + 3}" fill="#9aa3bd" font-family="JetBrains Mono" font-size="10" text-anchor="end">${formatNum(v, 1)}</text>`;
+  }
+
+  // Data points
+  let points = '';
+  market.data.forEach(([x, y]) => {
+    points += `<circle cx="${xs(x)}" cy="${ys(y)}" r="4" fill="#facc15"/>`;
+  });
+
+  // Regression line
+  const { slope, intercept } = market.regression;
+  const x1 = xMin, y1 = slope * x1 + intercept;
+  const x2 = xMax, y2 = slope * x2 + intercept;
+  const cy1 = Math.max(yMin, Math.min(yMax, y1));
+  const cy2 = Math.max(yMin, Math.min(yMax, y2));
+  const cx1 = (cy1 - intercept) / slope;
+  const cx2 = (cy2 - intercept) / slope;
+  const line = `<line x1="${xs(cx1)}" y1="${ys(cy1)}" x2="${xs(cx2)}" y2="${ys(cy2)}" stroke="rgba(250,204,21,0.6)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+
+  // Highlight predicted points for the two competitors
+  let predicted = '';
+  [c1, c2].forEach(c => {
+    if (c && c.predictor !== undefined && c.predictor !== null) {
+      const py = slope * c.predictor + intercept;
+      predicted += `<circle cx="${xs(c.predictor)}" cy="${ys(py)}" r="7" fill="none" stroke="${c.color}" stroke-width="2"/>
+                    <line x1="${xs(c.predictor)}" y1="${ys(py)}" x2="${xs(c.predictor)}" y2="${ys(yMin)}" stroke="${c.color}" stroke-width="1" stroke-dasharray="2 3" opacity="0.7"/>`;
+    }
+  });
+
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    ${grid}
+    ${line}
+    ${points}
+    ${predicted}
+    <line x1="${mL}" y1="${mT}" x2="${mL}" y2="${mT + plotH}" stroke="#3a4470" stroke-width="1"/>
+    <line x1="${mL}" y1="${mT + plotH}" x2="${mL + plotW}" y2="${mT + plotH}" stroke="#3a4470" stroke-width="1"/>
+    ${xLabels}
+    ${yLabels}
+    <text x="${mL + plotW/2}" y="${h - 12}" fill="#f0f4f8" font-family="JetBrains Mono" font-size="12" text-anchor="middle">${market.xLabel}</text>
+    <text x="20" y="${mT + plotH/2}" fill="#f0f4f8" font-family="JetBrains Mono" font-size="12" text-anchor="middle" transform="rotate(-90 20 ${mT + plotH/2})">${market.yLabel}</text>
+  </svg>`;
+}
+
+// ============================================================
+// RENDER: HOME / LANDING
+// ============================================================
+function renderHome() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <nav class="top-nav">
+      <div class="brand">
+        <div class="brand-dot"></div>
+        <div>
+          <div>DATA MANAGEMENT · THE DECISION</div>
+          <div class="brand-sub">MTH1W · End-of-Unit Activity</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button class="btn-ghost" onclick="resetAll()">Reset All</button>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-tag">Real Data · Real Decisions</div>
+      <h1>Make the <span class="yellow">Call</span>.<br>Show your <span class="yellow">Work</span>.</h1>
+      <p class="lead">You have a decision to make. The data is on the table. The numbers tell different stories depending on what you ask.</p>
+      <p class="lead" style="margin-top:8px;">Pick your scenario, work through the stats, and pitch your final choice.</p>
+    </section>
+
+    <div class="info-strip">
+      <div class="info-stat">
+        <div class="label">What you'll use</div>
+        <div class="value">3 Lessons</div>
+        <div class="value-sub">central tendency · spread · regression</div>
+      </div>
+      <div class="info-stat">
+        <div class="label">How long</div>
+        <div class="value">75 min</div>
+        <div class="value-sub">one period · individual or pairs</div>
+      </div>
+      <div class="info-stat">
+        <div class="label">Deliverable</div>
+        <div class="value">The Pitch</div>
+        <div class="value-sub">3+ stats · 1 decision · evidence-based</div>
+      </div>
+    </div>
+
+    <div class="how-it-works">
+      <div class="section-label">How it works</div>
+      <div class="how-grid">
+        <div class="how-card"><div class="step">01</div><h4>Analyze the data</h4><p>Mean, median, mode for each option. Who scores more on average?</p></div>
+        <div class="how-card"><div class="step">02</div><h4>Compare spread</h4><p>Range, IQR, parallel boxplots. Who's more consistent?</p></div>
+        <div class="how-card"><div class="step">03</div><h4>Predict fair value</h4><p>Use the league/market regression to predict what each option is really worth.</p></div>
+        <div class="how-card"><div class="step">04</div><h4>Make the pitch</h4><p>Cite at least three stats. Defend your decision.</p></div>
+      </div>
+    </div>
+
+    <div class="section-label">Choose your scenario</div>
+    <div class="scenario-grid">
+      ${Object.values(SCENARIOS).map(sc => {
+        const pct = Math.round(scenarioProgress(sc.id) * 100);
+        return `
+        <button class="scenario-card" style="--card-accent: ${sc.color};" onclick="goTo('scenario/${sc.id}')">
+          <div class="scenario-icon">${sc.icon}</div>
+          <h3>${sc.title}<br><span style="opacity:0.7; font-size: 0.7em;">${sc.subtitle}</span></h3>
+          <div class="tagline">${sc.cardTagline}</div>
+          <div class="scenario-progress">
+            <div class="progress-row"><span>Progress</span><span class="pct">${pct}%</span></div>
+            <div class="progress-bar"><div class="fill" style="width: ${pct}%;"></div></div>
+          </div>
+        </button>`;
+      }).join('')}
+    </div>
+
+    <footer class="app-footer">MTH1W · Data Management · DDSB · Built for the classroom · Your work auto-saves in this browser</footer>
+  `;
+}
+
+// ============================================================
+// RENDER: SCENARIO
+// ============================================================
+function renderScenario(id) {
+  const sc = SCENARIOS[id];
+  if (!sc) { goTo(''); return; }
+
+  const s = getScenarioState(id);
+  const stats1 = computeStats(sc.competitor1.data);
+  const stats2 = computeStats(sc.competitor2.data);
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <nav class="top-nav">
+      <div class="brand">
+        <div class="brand-dot"></div>
+        <div>
+          <div>DATA MANAGEMENT · THE DECISION</div>
+          <div class="brand-sub">MTH1W · End-of-Unit Activity</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button class="btn-ghost" onclick="goTo('')">All scenarios</button>
+      </div>
+    </nav>
+
+    <div class="sticky-progress" style="--scenario-color: ${sc.color};">
+      <button class="back-btn" onclick="goTo('')">← Back</button>
+      <div class="progress-info">
+        <div class="progress-bar" style="--card-accent: ${sc.color};">
+          <div class="fill" id="topProgress" style="background: ${sc.color}; width: ${Math.round(scenarioProgress(id) * 100)}%;"></div>
+        </div>
+        <span class="progress-pct" style="color: ${sc.color};" id="topProgressPct">${Math.round(scenarioProgress(id) * 100)}%</span>
+      </div>
+    </div>
+
+    <header class="scenario-header" style="--scenario-color: ${sc.color};">
+      <div class="kicker">Scenario · ${sc.subtitle}</div>
+      <h1>${sc.title.toUpperCase()}</h1>
+      <p class="intro">${sc.intro}</p>
+      ${sc.budget.value !== null ? `<div class="budget-pill">BUDGET · ${sc.budget.label}</div>` : ''}
+      <div class="stakeholders">
+        <div class="competitor-card" style="--card-accent: ${sc.competitor1.color};">
+          <div class="role">${sc.competitor1.role}</div>
+          <div class="name">${sc.competitor1.name}</div>
+          <div class="ask">Asking · ${sc.competitor1.askingLabel}</div>
+        </div>
+        <div class="competitor-card" style="--card-accent: ${sc.competitor2.color};">
+          <div class="role">${sc.competitor2.role}</div>
+          <div class="name">${sc.competitor2.name}</div>
+          <div class="ask">Asking · ${sc.competitor2.askingLabel}</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- GUT CHECK: pre-calculation decision -->
+    <div class="gut-check">
+      <div class="gc-label">Step 0 \u2014 Gut Check</div>
+      <h3>Before doing any calculations, who would you choose?</h3>
+      <p class="gc-sub">You may change your decision later \u2014 this is just a baseline. Pick fast.</p>
+      <div class="gc-buttons">
+        <button class="gc-btn ${s.gutChoice === 'c1' ? 'selected' : ''}" onclick="chooseGut('${id}', 'c1')">${sc.competitor1.name}</button>
+        <button class="gc-btn ${s.gutChoice === 'c2' ? 'selected' : ''}" onclick="chooseGut('${id}', 'c2')">${sc.competitor2.name}</button>
+      </div>
+      <textarea oninput="onGutReason('${id}', this.value)" placeholder="One sentence \u2014 why?">${escapeHtml(s.gutReason || '')}</textarea>
+    </div>
+
+    <!-- PART 1: CENTRAL TENDENCY -->
+    <section class="part" style="--scenario-color: ${sc.color};">
+      <div class="part-header">
+        <span class="part-number">PART 1</span>
+        <span class="part-title">Central Tendency</span>
+      </div>
+      <p class="part-intro">Below are each option's ${sc.metricLabel.toLowerCase()} over their last 10 ${labelForSpan(sc)}.</p>
+
+      <div class="data-block">
+        <h4>${sc.competitor1.name} · ${sc.metricLabel.toLowerCase()}</h4>
+        ${renderDataRow(sc.competitor1.data, sc.seasonLabel)}
+      </div>
+      <div class="data-block">
+        <h4>${sc.competitor2.name} · ${sc.metricLabel.toLowerCase()}</h4>
+        ${renderDataRow(sc.competitor2.data, sc.seasonLabel)}
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q1.1</div>
+        <div class="q-text">Calculate the <b>mean</b>, <b>median</b>, and <b>mode</b> for each option.</div>
+        <div class="split-2">
+          ${answerPanel(id, sc.competitor1.name, sc.competitor1.color, [
+            { key: 'mean1', label: 'Mean', expected: stats1.mean },
+            { key: 'median1', label: 'Median', expected: stats1.median },
+            { key: 'mode1', label: 'Mode', expected: String(stats1.mode), isText: true }
+          ])}
+          ${answerPanel(id, sc.competitor2.name, sc.competitor2.color, [
+            { key: 'mean2', label: 'Mean', expected: stats2.mean },
+            { key: 'median2', label: 'Median', expected: stats2.median },
+            { key: 'mode2', label: 'Mode', expected: String(stats2.mode), isText: true }
+          ])}
+        </div>
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q1.2</div>
+        <div class="q-text">Based on these measures, which option ${verbForScenario(sc, 'comes-out-ahead')}? Use specific numbers.</div>
+        <textarea class="long" id="input-compare" oninput="onInput('${id}', 'compare', this.value)" placeholder="Your reasoning...">${s.inputs.compare || ''}</textarea>
+      </div>
+    </section>
+
+    <!-- PART 2: SPREAD -->
+    <section class="part" style="--scenario-color: ${sc.color};">
+      <div class="part-header">
+        <span class="part-number">PART 2</span>
+        <span class="part-title">Who's More Consistent?</span>
+      </div>
+      <p class="part-intro">A high average doesn't tell you the whole story — sometimes the predictable option wins.</p>
+
+      <details class="mini-example">
+        <summary>Need a refresher on Q\u2081, Q\u2083, and IQR?</summary>
+        <div class="me-body">
+          <span class="step">Example data:</span> 4, 6, 8, 10, 12<br>
+          <span class="step">Median</span> = 8<br>
+          <span class="step">Q\u2081</span> = 6 &nbsp; <span style="color:var(--text-faint);">(median of lower half: 4, 6)</span><br>
+          <span class="step">Q\u2083</span> = 10 &nbsp; <span style="color:var(--text-faint);">(median of upper half: 10, 12)</span><br>
+          <span class="step">IQR</span> = Q\u2083 \u2212 Q\u2081 = 10 \u2212 6 = 4<br>
+          <span class="step">Range</span> = 12 \u2212 4 = 8
+        </div>
+      </details>
+
+      <div class="question">
+        <div class="q-label">Q2.1</div>
+        <div class="q-text">For each option, find the <b>five-number summary</b> (Min, Q\u2081, Q\u2083, Max) plus the <b>range</b> and <b>IQR</b>.</div>
+        <div class="split-2">
+          ${answerPanel(id, sc.competitor1.name, sc.competitor1.color, [
+            { key: 'min_1', label: 'Min', expected: stats1.min },
+            { key: 'q1_1', label: 'Q\u2081', expected: stats1.q1 },
+            { key: 'q3_1', label: 'Q\u2083', expected: stats1.q3 },
+            { key: 'max_1', label: 'Max', expected: stats1.max },
+            { key: 'range_1', label: 'Range', expected: stats1.range },
+            { key: 'iqr_1', label: 'IQR', expected: stats1.iqr }
+          ])}
+          ${answerPanel(id, sc.competitor2.name, sc.competitor2.color, [
+            { key: 'min_2', label: 'Min', expected: stats2.min },
+            { key: 'q1_2', label: 'Q\u2081', expected: stats2.q1 },
+            { key: 'q3_2', label: 'Q\u2083', expected: stats2.q3 },
+            { key: 'max_2', label: 'Max', expected: stats2.max },
+            { key: 'range_2', label: 'Range', expected: stats2.range },
+            { key: 'iqr_2', label: 'IQR', expected: stats2.iqr }
+          ])}
+        </div>
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q2.2</div>
+        <div class="q-text">The parallel boxplot below renders as you enter your <b>five-number summary</b> above (Min, Q\u2081, median from Part 1, Q\u2083, Max). Check that the shape matches what you expect.</div>
+        <div class="viz-container" id="boxplotViz"></div>
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q2.3</div>
+        <div class="q-text">Which option is more consistent ${sc.inverseDataInterp ? '(more predictable cost-wise)' : ''}? Justify using <b>both</b> the range AND the IQR.</div>
+        <textarea class="long" id="input-consistency" oninput="onInput('${id}', 'consistency', this.value)" placeholder="Your reasoning...">${s.inputs.consistency || ''}</textarea>
+      </div>
+    </section>
+
+    <!-- PART 3: MARKET DATA + SCATTERPLOT -->
+    <section class="part" style="--scenario-color: ${sc.color};">
+      <div class="part-header">
+        <span class="part-number">PART 3</span>
+        <span class="part-title">${marketPartTitle(sc)}</span>
+      </div>
+      <p class="part-intro">${marketPartIntro(sc)}</p>
+
+      <div class="data-block">
+        ${renderMarketTable(sc.market.data, sc.market.xLabel, sc.market.yLabel)}
+      </div>
+
+      <div class="viz-container">
+        ${renderScatterSVG(
+          sc.market,
+          { color: sc.competitor1.color, predictor: sc.predictorValue1 },
+          { color: sc.competitor2.color, predictor: sc.predictorValue2 },
+          sc
+        )}
+        <p style="text-align:center; color: var(--text-faint); font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-top: 8px;">
+          <span style="color: ${sc.competitor1.color};">●</span> ${sc.competitor1.name.split(' ')[0]} (${sc.predictorValue1})
+          &nbsp;·&nbsp;
+          <span style="color: ${sc.competitor2.color};">●</span> ${sc.competitor2.name.split(' ')[0]} (${sc.predictorValue2})
+        </p>
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q3.1</div>
+        <div class="q-text">Describe the <b>strength</b> and <b>direction</b> of the linear correlation. (e.g. "strong positive linear correlation")</div>
+        <textarea class="long" id="input-correlation" oninput="onInput('${id}', 'correlation', this.value)" placeholder="Strength + direction...">${s.inputs.correlation || ''}</textarea>
+      </div>
+    </section>
+
+    <!-- PART 4: PREDICTIONS -->
+    <section class="part" style="--scenario-color: ${sc.color};">
+      <div class="part-header">
+        <span class="part-number">PART 4</span>
+        <span class="part-title">${predictPartTitle(sc)}</span>
+      </div>
+      <p class="part-intro">The linear regression of the market data gives this equation:</p>
+      <div class="eqn">
+        <div class="formula">${sc.market.formula}<span style="color: var(--text-dim); margin-left: 24px; font-weight:500;">r = ${sc.market.r}</span></div>
+        <div class="vars">where <i>x</i> = ${sc.market.predictorLabel}, <i>y</i> = ${predictYDescription(sc)}</div>
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q4.1</div>
+        <div class="q-text">Use the equation to predict each option's <b>fair-market value</b>. Use ${sc.competitor1.name.split(',')[0]}: <b>x = ${sc.predictorValue1}</b>, ${sc.competitor2.name.split(',')[0]}: <b>x = ${sc.predictorValue2}</b>.</div>
+        <div class="split-2">
+          ${answerPanel(id, sc.competitor1.name + ' (x = ' + sc.predictorValue1 + ')', sc.competitor1.color, [
+            { key: 'pred1', label: sc.predictedFieldLabel, expected: round(sc.market.regression.slope * sc.predictorValue1 + sc.market.regression.intercept, 2), tolerance: 0.2 }
+          ])}
+          ${answerPanel(id, sc.competitor2.name + ' (x = ' + sc.predictorValue2 + ')', sc.competitor2.color, [
+            { key: 'pred2', label: sc.predictedFieldLabel, expected: round(sc.market.regression.slope * sc.predictorValue2 + sc.market.regression.intercept, 2), tolerance: 0.2 }
+          ])}
+        </div>
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q4.2</div>
+        <div class="q-text">Are your predictions examples of <b>interpolation</b> or <b>extrapolation</b>? Explain.</div>
+        <textarea class="long" id="input-interp" oninput="onInput('${id}', 'interp', this.value)" placeholder="Type interpolation or extrapolation and explain...">${s.inputs.interp || ''}</textarea>
+      </div>
+
+      <div class="question">
+        <div class="q-label">Q4.3</div>
+        <div class="q-text">Compare each predicted value to the actual ${valueComparisonLabel(sc)}. Which is the better <b>value</b>?${sc.id === 'cars' ? ' <span style="color: var(--accent);">Reminder: your prediction is in $1,000s \u2014 e.g. 3.63 means $3,630.</span>' : ''}</div>
+        <textarea class="long" id="input-value" oninput="onInput('${id}', 'value_analysis', this.value)" placeholder="Compare predicted vs. asking. Who's overpriced? Who's a bargain?">${s.inputs.value_analysis || ''}</textarea>
+      </div>
+    </section>
+
+    <!-- PART 5: PITCH -->
+    <section class="part" style="--scenario-color: ${sc.color};">
+      <div class="part-header">
+        <span class="part-number">PART 5</span>
+        <span class="part-title">The Pitch</span>
+      </div>
+      <p class="part-intro">${sc.pitchPrompt}</p>
+
+      ${s.gutChoice ? `
+      <div class="gut-recall">
+        <div class="gr-label">Step 0 callback</div>
+        <div>Before the math, you picked <b style="color: var(--accent);">${s.gutChoice === 'c1' ? sc.competitor1.name : sc.competitor2.name}</b>.${s.gutReason ? ` You said: <span class="gr-quote">\u201C${escapeHtml(s.gutReason)}\u201D</span>` : ''}</div>
+        <div style="margin-top: 8px; color: var(--text-dim);">Did the data change your mind?</div>
+      </div>
+      ` : ''}
+
+      <div class="pitch-box">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;">Your Decision</div>
+        <div class="choose-row">
+          <button class="choose-btn ${s.choice === 'c1' ? 'selected' : ''}" onclick="chooseSign('${id}', 'c1')">${sc.signed1Label}</button>
+          <button class="choose-btn ${s.choice === 'c2' ? 'selected' : ''}" onclick="chooseSign('${id}', 'c2')">${sc.signed2Label}</button>
+        </div>
+
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Your Pitch (3\u20135 sentences · cite ≥ 3 stats)</div>
+        <textarea class="long" id="input-pitch" oninput="onPitch('${id}', this.value)" placeholder="My pick is _____ because the data shows..." style="min-height: 140px;">${s.pitch || ''}</textarea>
+
+        <div class="checklist">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;">Self-check</div>
+          ${checklistItem(id, 'check_central', "I calculated mean, median, and mode for both options")}
+          ${checklistItem(id, 'check_spread', "I found Q\u2081, Q\u2083, range, and IQR for both options")}
+          ${checklistItem(id, 'check_regression', "I used the regression equation to predict each option's fair value")}
+          ${checklistItem(id, 'check_pitch', "My pitch cites at least 3 different stats and explains my decision")}
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-primary" onclick="window.print()">📄 Print / Save My Pitch</button>
+        <button class="btn-ghost" onclick="resetScenario('${id}')">Reset this scenario</button>
+      </div>
+    </section>
+
+    <footer class="app-footer">${sc.title} · ${sc.subtitle} · Your work auto-saves</footer>
+  `;
+
+  updateBoxplot(id);
+}
+
+function labelForSpan(sc) {
+  if (sc.id === 'stream') return 'streams';
+  if (sc.id === 'cars') return 'weeks';
+  if (sc.id === 'jobs') return 'weeks';
+  return 'seasons';
+}
+function verbForScenario(sc, kind) {
+  if (sc.id === 'cars') return 'is the cheaper to run';
+  if (sc.id === 'jobs') return 'earns more on average';
+  if (sc.id === 'stream') return 'pulls more viewers';
+  return 'scores more';
+}
+function marketPartTitle(sc) {
+  if (sc.id === 'cars') return 'Market Pricing';
+  if (sc.id === 'jobs') return 'Job Market Data';
+  if (sc.id === 'stream') return 'Sponsorship Market';
+  return 'What\u2019s a Fair Contract?';
+}
+function marketPartIntro(sc) {
+  if (sc.id === 'nhl') return "Your scout pulled last season's points and current contract value for 14 NHL forwards.";
+  if (sc.id === 'stream') return 'You looked up 14 streamers your size and how much they\u2019re paid per month.';
+  if (sc.id === 'cars') return 'You pulled 14 listings for similar compact sedans in your area to see how km affects price.';
+  if (sc.id === 'jobs') return 'You collected weekly hours + earnings data from 14 part-time roles in your area.';
+}
+function predictPartTitle(sc) {
+  if (sc.id === 'cars') return 'Predicting a Fair Price';
+  if (sc.id === 'jobs') return 'Predicting Fair Earnings';
+  return 'Predicting Fair Value';
+}
+function predictYDescription(sc) {
+  if (sc.id === 'nhl') return 'predicted contract (millions $)';
+  if (sc.id === 'stream') return 'predicted sponsorship ($/month)';
+  if (sc.id === 'cars') return 'predicted asking price ($1,000s)';
+  if (sc.id === 'jobs') return 'predicted weekly earnings ($)';
+}
+function valueComparisonLabel(sc) {
+  if (sc.id === 'nhl') return 'asking contract';
+  if (sc.id === 'stream') return 'asking sponsorship';
+  if (sc.id === 'cars') return 'asking price';
+  if (sc.id === 'jobs') return 'mean weekly earnings (from Part 1)';
+}
+
+function answerPanel(scenarioId, title, color, fields) {
+  const s = getScenarioState(scenarioId);
+  return `
+    <div class="answer-panel" style="--card-accent: ${color};">
+      <h5>${title}</h5>
+      ${fields.map(f => {
+        const val = s.inputs[f.key] || '';
+        return `<div class="input-row">
+          <label>${f.label}</label>
+          <input type="text" id="input-${f.key}" value="${escapeHtml(val)}"
+                 data-key="${f.key}" data-expected="${f.expected}" data-tolerance="${f.tolerance || 0.05}" data-istext="${f.isText ? 1 : 0}"
+                 oninput="onInput('${scenarioId}', '${f.key}', this.value); updateBoxplot('${scenarioId}');"
+                 placeholder="...">
+          <span class="verdict" id="verdict-${f.key}">${verdictMark(val, f.expected, f.tolerance, f.isText)}</span>
+        </div>`;
+      }).join('')}
+      <div class="btn-row">
+        <button class="btn-check" onclick="checkPanel('${scenarioId}', ${JSON.stringify(fields.map(f => f.key)).replace(/"/g, "'")})">Check</button>
+        <button class="btn-reveal" onclick="revealPanel(event, '${scenarioId}')">Reveal</button>
+      </div>
+    </div>
+  `;
+}
+
+function verdictMark(val, expected, tolerance, isText) {
+  if (val === '' || val === undefined) return '';
+  const ok = check(val, isText ? String(expected) : expected, tolerance);
+  if (ok === null) return '';
+  return ok ? '<span class="ok">✓</span>' : '<span class="no">✕</span>';
+}
+
+function renderDataRow(data, label) {
+  const cols = data.map((_, i) => `<th>${label}${i+1}</th>`).join('');
+  const vals = data.map(d => `<td class="value">${d}</td>`).join('');
+  return `<table class="data"><thead><tr>${cols}</tr></thead><tbody><tr>${vals}</tr></tbody></table>`;
+}
+
+function renderMarketTable(data, xLabel, yLabel) {
+  const half = Math.ceil(data.length / 2);
+  const left = data.slice(0, half);
+  const right = data.slice(half);
+  let rows = '';
+  for (let i = 0; i < half; i++) {
+    const l = left[i], r = right[i];
+    rows += `<tr>
+      <td>${l ? l[0] : ''}</td><td>${l ? l[1] : ''}</td>
+      <td>${r ? r[0] : ''}</td><td>${r ? r[1] : ''}</td>
+    </tr>`;
+  }
+  return `<table class="market">
+    <thead><tr>
+      <th>${xLabel}</th><th>${yLabel}</th>
+      <th>${xLabel}</th><th>${yLabel}</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function checklistItem(scenarioId, key, label) {
+  const s = getScenarioState(scenarioId);
+  const checked = s.checks[key] ? 'checked' : '';
+  return `<div class="check-item">
+    <input type="checkbox" ${checked} onchange="toggleCheck('${scenarioId}', '${key}', this.checked)">
+    <label>${label}</label>
+  </div>`;
+}
+
+function escapeHtml(s) {
+  if (s === undefined || s === null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ============================================================
+// INTERACTION HANDLERS
+// ============================================================
+function onInput(scenarioId, key, value) {
+  setInput(scenarioId, key, value);
+  // verdict
+  const input = document.getElementById('input-' + key);
+  if (input) {
+    const expected = parseFloat(input.dataset.expected);
+    const tolerance = parseFloat(input.dataset.tolerance);
+    const isText = input.dataset.istext === '1';
+    const verd = document.getElementById('verdict-' + key);
+    if (verd) verd.innerHTML = verdictMark(value, isText ? input.dataset.expected : expected, tolerance, isText);
+  }
+  updateTopProgress(scenarioId);
+}
+
+function onPitch(scenarioId, value) {
+  getScenarioState(scenarioId).pitch = value;
+  saveState();
+  updateTopProgress(scenarioId);
+}
+
+function chooseSign(scenarioId, choice) {
+  getScenarioState(scenarioId).choice = choice;
+  saveState();
+  renderScenario(scenarioId);
+}
+
+function chooseGut(scenarioId, choice) {
+  getScenarioState(scenarioId).gutChoice = choice;
+  saveState();
+  renderScenario(scenarioId);
+}
+
+function onGutReason(scenarioId, value) {
+  getScenarioState(scenarioId).gutReason = value;
+  saveState();
+}
+
+function toggleCheck(scenarioId, key, val) {
+  getScenarioState(scenarioId).checks[key] = val;
+  saveState();
+}
+
+function checkPanel(scenarioId, keys) {
+  keys.forEach(key => {
+    const input = document.getElementById('input-' + key);
+    if (!input) return;
+    const verd = document.getElementById('verdict-' + key);
+    const expected = parseFloat(input.dataset.expected);
+    const tolerance = parseFloat(input.dataset.tolerance);
+    const isText = input.dataset.istext === '1';
+    if (verd) verd.innerHTML = verdictMark(input.value, isText ? input.dataset.expected : expected, tolerance, isText);
+  });
+}
+
+function revealPanel(event, scenarioId) {
+  const btn = event.target;
+  const panel = btn.closest('.answer-panel');
+  if (!panel) return;
+  panel.querySelectorAll('input').forEach(inp => {
+    const key = inp.dataset.key;
+    const expected = inp.dataset.expected;
+    inp.value = expected;
+    setInput(scenarioId, key, expected);
+    const verd = document.getElementById('verdict-' + key);
+    if (verd) verd.innerHTML = '<span style="color: var(--info);">\u2192</span>';
+  });
+  updateBoxplot(scenarioId);
+  updateTopProgress(scenarioId);
+}
+
+function updateTopProgress(scenarioId) {
+  const pct = Math.round(scenarioProgress(scenarioId) * 100);
+  const bar = document.getElementById('topProgress');
+  const lbl = document.getElementById('topProgressPct');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = pct + '%';
+}
+
+function updateBoxplot(scenarioId) {
+  const container = document.getElementById('boxplotViz');
+  if (!container) return;
+  const sc = SCENARIOS[scenarioId];
+  const s = getScenarioState(scenarioId);
+  function buildStats(prefix, fallbackData) {
+    const fb = computeStats(fallbackData);
+    const q1 = parseFloat(s.inputs['q1_' + prefix]);
+    const q3 = parseFloat(s.inputs['q3_' + prefix]);
+    const median = parseFloat(s.inputs['median' + prefix]);
+    const useStudent = !isNaN(q1) && !isNaN(q3) && !isNaN(median);
+    if (useStudent) {
+      const minS = parseFloat(s.inputs['min_' + prefix]);
+      const maxS = parseFloat(s.inputs['max_' + prefix]);
+      return {
+        q1, q3, median,
+        min: isNaN(minS) ? fb.min : minS,
+        max: isNaN(maxS) ? fb.max : maxS
+      };
+    }
+    return null;
+  }
+  const stats1 = buildStats('1', sc.competitor1.data);
+  const stats2 = buildStats('2', sc.competitor2.data);
+  container.innerHTML = renderBoxplotSVG(
+    stats1, stats2,
+    sc.competitor1.name.split(' ')[0].toUpperCase(),
+    sc.competitor2.name.split(' ')[0].toUpperCase(),
+    sc.competitor1.color, sc.competitor2.color,
+    null, null
+  );
+  if (!stats1 || !stats2) {
+    container.insertAdjacentHTML('beforeend', '<p style="text-align:center; color: var(--text-faint); font-size: 12px; margin-top: 8px; font-family: \'JetBrains Mono\', monospace;">Enter Q\u2081, median, and Q\u2083 above to render the boxplot.</p>');
+  }
+}
+
+function resetScenario(id) {
+  if (!confirm('Clear all work for this scenario?')) return;
+  STATE[id] = { inputs: {}, choice: null, pitch: '', checks: {}, gutChoice: null, gutReason: '' };
+  saveState();
+  renderScenario(id);
+}
+function resetAll() {
+  if (!confirm('Clear all work for ALL scenarios?')) return;
+  STATE = {};
+  saveState();
+  render();
+}
+
+// ============================================================
+// RENDER ROOT
+// ============================================================
+function render() {
+  const route = getRoute();
+  if (route.view === 'scenario') renderScenario(route.id);
+  else renderHome();
+  window.scrollTo(0, 0);
+}
+
+render();
+</script>
+</body>
+</html>
